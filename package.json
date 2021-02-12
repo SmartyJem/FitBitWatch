@@ -1,0 +1,12 @@
+{
+  "name": "fit-bit-hr",
+  "version": "0.0.0",
+  "description": "FitBitHR",
+  "main": "server.js",
+  "author": {
+    "name": ""
+  },
+  "dependencies": {
+    "socket.io": "^3.1.0"
+  }
+}
