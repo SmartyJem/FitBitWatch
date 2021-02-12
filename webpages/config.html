@@ -1,0 +1,103 @@
+﻿<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+    <style>
+        * {
+            margin: 10px;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+
+        button {
+            padding: 2px 10px;
+            margin: 10px;
+        }
+
+        h2, button {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        td {
+            padding: 10px;
+            width: 250px;
+        }
+
+    </style>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <meta charset="utf-8" />
+    <title></title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h2>OAuth 2.0 Authorization Code Flow:</h2>
+    <table>
+        <tr>
+            <td>Authorization Code</td>
+            <td id="urlCode">Waiting for the code...</td>
+        </tr>
+        <tr>
+            <td>Access Token</td>
+            <td id="urlToken">Waiting for the Token...</td>
+        </tr>
+        <tr>
+            <td>Web API</td>
+            <td id="urlJSON">The Overlay is currently Offline.</td>
+        </tr>
+    </table>
+    <button onclick="getURL()">Connect to the Web API</button>
+    <button>Refresh the Web API</button>
+</body>
+</html>
+
+<script>
+    var socket = io.connect('http://localhost:1337');
+    var authCode_url;
+    var temp;
+
+    function getURL() {
+        try {
+            temp = window.open(authCode_url);
+        } catch(err){
+            window.alert('Missing URL');
+        }
+        
+    }
+
+    socket.on('startConfig', function (client_id, redirect_url, scope, expiresIn) {
+        try {
+            authCode_url = "https://www.fitbit.com/oauth2/authorize?"
+                + "response_type=code"
+                + "&client_id=" + client_id
+                + "&redirect_uri=" + redirect_url
+                + "&scope=" + scope
+                + "&expires_in=" + expiresIn;
+        } catch (err) {
+            window.alert('Missing Data: The webpage is unable to retrieve the data needed from the webserver.');
+        }
+
+    });
+
+    socket.on('code', function (data) {
+        try {
+            temp.close();
+            document.getElementById("urlCode").innerHTML = 'Code has been retrieved.';
+        } catch (err) {
+            window.alert('Missing Page');
+        }
+    });
+
+    socket.on('token', function (data) {
+        document.getElementById("urlToken").innerHTML = 'Token has been retrieved.';
+    });
+
+    socket.on('json', function (data) {
+        document.getElementById("urlJSON").innerHTML = 'The Overlay is Online.';
+    });
+
+</script>
